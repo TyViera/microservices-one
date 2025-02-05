@@ -2,6 +2,7 @@ package com.travelport.calculator.config;
 
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
 
@@ -22,10 +23,16 @@ public class RestConfig {
 //                .getFirst();
 //        return RestClient.builder().baseUrl("http://%s:%s".formatted(service.getHostName(), service.getPort()));
 //    }
+//
+//    @Bean
+//    @LoadBalanced
+//    public RestClient.Builder restClient() {
+//        return RestClient.builder().baseUrl("http://sum-microservice");
+//    }
 
     @Bean
     @LoadBalanced
-    public RestClient.Builder restClient() {
-        return RestClient.builder().baseUrl("http://sum-microservice");
+    public RestClient.Builder restClient(@Value("${app.sum.host}") String sumRoute) {
+        return RestClient.builder().baseUrl(sumRoute);
     }
 }

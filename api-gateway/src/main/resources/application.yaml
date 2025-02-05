@@ -10,10 +10,22 @@ spring:
             - Path=/api/sum-service/**
           filters:
             - RewritePath=/api/sum-service(?<segment>/?.*), $\{segment}
+        - id: calculator-service
+          uri: lb://calculator-microservice
+          predicates:
+            - Path=/api/calculator/**
+          filters:
+            - RewritePath=/api(?<segment>/?.*), $\{segment}
+        - id: discovery-service
+          uri: lb://discovery-service
+          predicates:
+            - Path=/eureka-app/**
+          filters:
+            - RewritePath=/eureka-app(?<segment>/?.*), $\{segment}
 eureka:
   client:
-    service-url:
-      default-zone: http://localhost:8761/eureka
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
 
 logging:
   level:
@@ -21,4 +33,4 @@ logging:
     org.springframework.cloud.gateway.route.RouteDefinitionLocator: info
     org.springframework.cloud.gateway: trace
 server:
-  port: 9000
+  port: 9999

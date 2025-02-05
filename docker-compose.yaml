@@ -1,0 +1,66 @@
+# what services must work together
+services:
+  eureka:
+    container_name: discovery-service-ps-ms
+    #image: discovery-service
+    build: ./discovery-service
+    environment:
+      - 'SERVER_PORT=8761'
+    # ports:
+    #   - '8761:8761'
+    networks:
+      - discovery_network
+  calculator:
+    container_name: calculator-ms
+    #image: calculator-ms
+    build: ./calculator
+    environment:
+      - 'EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka'
+      - 'EUREKA_INSTANCE_HOSTNAME=calculator'
+      - 'SERVER_PORT=8001'
+    ports:
+      - '8001:8001'
+    depends_on:
+      - eureka
+    networks:
+      - discovery_network
+  sum:
+    container_name: sum-ms
+    #image: sum-ms
+    build: ./sum
+    environment:
+      - 'EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka'
+      - 'EUREKA_INSTANCE_HOSTNAME=sum'
+      - 'SERVER_PORT=8005'
+    ports:
+      - '8005:8005'
+    depends_on:
+      - eureka
+    networks:
+      - discovery_network
+  apigateway:
+    container_name: api-gateway-container
+    #image: api-gateway
+    build: ./api-gateway
+    environment:
+      - 'EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka'
+      - 'EUREKA_INSTANCE_HOSTNAME=apigateway'
+      - 'SERVER_PORT=9090'
+    ports:
+      - '9090:9090'
+    depends_on:
+      - eureka
+      - calculator
+      - sum
+    networks:
+      - discovery_network
+      - gateway_network
+
+networks:
+  gateway_network:
+    driver: bridge
+  discovery_network:
+    # driver: bridge
+    ipam:
+      config:
+        - subnet: 198.168.10.0/24
